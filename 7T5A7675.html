@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>דו״ח טל״ת</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&family=Secular+One&family=Roboto+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --plate:#15180F;
+  --panel:#1E2317;
+  --panel-2:#262C1D;
+  --line:#3A422C;
+  --olive:#7E9150;
+  --amber:#E8A33D;
+  --signal:#C4553D;
+  --txt:#E6E9DC;
+  --muted:#8F9880;
+  --wa:#1F2C34;
+  --wa-bubble:#0B4C39;
+  --r:10px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:
+    radial-gradient(120% 60% at 50% 0%, #1D2216 0%, var(--plate) 60%),
+    var(--plate);
+  color:var(--txt);
+  font-family:'Heebo',-apple-system,'Segoe UI',Arial,sans-serif;
+  font-size:16px;line-height:1.45;
+  padding:0 0 96px;
+  min-height:100vh;
+}
+.wrap{max-width:760px;margin:0 auto;padding:0 14px}
+
+/* ---------- header / gauge cluster ---------- */
+.hdr{
+  position:relative;margin-top:14px;
+  border:1px solid var(--line);border-radius:var(--r);
+  background:linear-gradient(180deg,var(--panel-2),var(--panel));
+  overflow:hidden;
+}
+.hdr::before{
+  content:"";position:absolute;inset-inline-start:0;top:0;bottom:0;width:6px;
+  background:repeating-linear-gradient(135deg,var(--amber) 0 8px,#15180F 8px 16px);
+  opacity:.75;
+}
+.hdr-top{display:flex;align-items:center;gap:12px;padding:12px 18px 10px}
+.mark{
+  font-family:'Secular One',sans-serif;font-size:14px;letter-spacing:.22em;
+  color:#C3D19B;
+}
+.tank-in{
+  font-family:'Roboto Mono',monospace;font-weight:700;font-size:36px;
+  background:rgba(232,163,61,.1);border:1px solid rgba(232,163,61,.35);border-radius:8px;
+  color:var(--amber);width:5.6ch;text-align:center;
+  padding:2px 4px;letter-spacing:.04em;
+}
+.tank-in:focus{outline:none;border-color:var(--amber);background:rgba(232,163,61,.18)}
+.emoji-in{
+  width:2.6ch;font-size:26px;background:transparent;border:none;text-align:center;
+  margin-inline-start:auto;padding:0;
+}
+.emoji-in:focus{outline:none}
+.hdr-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:1px;background:var(--line);border-top:1px solid var(--line)}
+.hdr-grid .f{background:var(--panel);padding:9px 14px 11px}
+.gauges{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border-top:1px solid var(--line)}
+.gauge{background:var(--panel-2);padding:9px 10px 11px;text-align:center}
+label.lbl{
+  display:block;font-size:11.5px;letter-spacing:.16em;font-weight:500;
+  color:#B9C49A;margin-bottom:5px;
+}
+.f input,.gauge input{
+  width:100%;background:#2E3622;border:1px solid #465235;border-radius:8px;
+  color:#F4F6EC;font-family:'Heebo',sans-serif;font-size:17px;font-weight:500;
+  padding:8px 10px;
+}
+.gauge input{
+  font-family:'Roboto Mono',monospace;font-weight:700;font-size:20px;text-align:center;
+  color:var(--amber);direction:ltr;padding:8px 4px;
+}
+.f input:focus,.gauge input:focus{outline:none;border-color:var(--amber);background:#353E27}
+.f input::placeholder,.gauge input::placeholder{color:#7E8A69}
+
+/* ---------- status strip ---------- */
+.strip{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  margin:12px 0 4px;font-size:13px;color:var(--muted)
+}
+.pill{
+  border:1px solid var(--line);border-radius:999px;padding:3px 11px;
+  background:var(--panel);font-family:'Roboto Mono',monospace;font-size:12px;
+}
+.pill b{color:var(--signal);font-size:13px}
+.btn-ghost{
+  background:var(--panel);border:1px solid var(--line);color:var(--muted);
+  border-radius:999px;padding:5px 12px;font-family:inherit;font-size:12.5px;cursor:pointer;
+}
+.btn-ghost:hover{color:var(--txt);border-color:var(--olive)}
+.btn-ghost.warn{background:var(--signal);border-color:var(--signal);color:#15180F;font-weight:700}
+.hint{font-size:11.5px;color:#6E7860}
+
+/* ---------- sections ---------- */
+.sec{
+  margin-top:10px;border:1px solid var(--line);border-radius:var(--r);
+  background:var(--panel);overflow:hidden;
+}
+.sec-hd{
+  display:flex;align-items:center;gap:10px;padding:10px 14px;
+  background:var(--panel-2);border-bottom:1px solid transparent;cursor:pointer;
+}
+.sec.has .sec-hd{border-bottom-color:var(--line)}
+.sec-ttl{font-family:'Secular One',sans-serif;font-size:17px;letter-spacing:.02em}
+.badge{
+  margin-inline-start:auto;font-family:'Roboto Mono',monospace;font-size:12px;
+  padding:2px 9px;border-radius:999px;border:1px solid var(--line);color:var(--muted);
+}
+.badge.on{color:#15180F;background:var(--signal);border-color:var(--signal);font-weight:700}
+.add{
+  border:none;background:transparent;color:var(--olive);font-family:inherit;
+  font-size:22px;line-height:1;padding:0 4px;cursor:pointer;
+}
+.add:hover{color:var(--amber)}
+.items{padding:6px 10px 10px}
+.row{display:flex;align-items:flex-start;gap:8px;padding:3px 0}
+.dot{color:var(--olive);font-size:18px;line-height:1.6;flex:0 0 auto;width:12px;text-align:center}
+.row textarea{
+  flex:1;background:var(--panel-2);border:1px solid transparent;border-radius:8px;
+  color:var(--txt);font-family:inherit;font-size:15.5px;line-height:1.4;
+  padding:7px 10px;resize:none;overflow:hidden;min-height:36px;
+}
+.row textarea:focus{outline:none;border-color:var(--olive);background:#2B321F}
+.del{
+  flex:0 0 auto;background:transparent;border:none;color:#5D6650;cursor:pointer;
+  font-size:18px;padding:6px 4px;line-height:1;
+}
+.del:hover{color:var(--signal)}
+.empty{padding:2px 12px 12px;color:#5D6650;font-size:13.5px}
+
+/* ---------- oils ---------- */
+.oils{padding:10px 12px 12px;display:grid;gap:7px}
+.oil{
+  display:flex;align-items:center;gap:10px;background:var(--panel-2);
+  border-radius:8px;padding:6px 10px;
+}
+.oil .code{
+  font-family:'Roboto Mono',monospace;font-size:16px;font-weight:700;
+  color:var(--txt);direction:ltr;background:transparent;border:none;width:7ch;
+}
+.oil .code:focus{outline:none;color:var(--amber)}
+.oil .nm{font-size:13px;color:var(--muted);flex:1}
+.stp{display:flex;align-items:center;gap:2px}
+.stp button{
+  width:30px;height:30px;border-radius:7px;border:1px solid var(--line);
+  background:var(--panel);color:var(--txt);font-size:17px;cursor:pointer;line-height:1;
+}
+.stp button:hover{border-color:var(--olive)}
+.stp .q{
+  width:34px;text-align:center;font-family:'Roboto Mono',monospace;font-weight:700;
+  color:var(--amber);font-size:16px;
+}
+.oil.off .code,.oil.off .nm{opacity:.4}
+.oil.off .q{color:#5D6650}
+
+/* ---------- preview ---------- */
+.prev{
+  margin-top:16px;border:1px solid var(--line);border-radius:var(--r);
+  background:var(--wa);overflow:hidden;
+}
+.prev-hd{
+  display:flex;align-items:center;gap:8px;padding:9px 14px;
+  background:#202C33;font-size:13px;color:#8FA3AD;
+}
+.prev-body{padding:14px}
+.bubble{
+  background:var(--wa-bubble);border-radius:9px;padding:10px 12px;
+  white-space:pre-wrap;font-size:14.5px;line-height:1.5;color:#E9EDEF;
+  max-width:100%;word-break:break-word;
+}
+.bubble strong{font-weight:700}
+.tail{text-align:end;font-size:11px;color:#8FA3AD;margin-top:4px}
+.sec-ic{font-size:15px;opacity:.85;line-height:1}
+.segs{margin-inline-start:auto;display:flex;background:#0F191E;border-radius:999px;padding:2px}
+.segs label{position:relative;cursor:pointer}
+.segs input{position:absolute;opacity:0;inset:0;cursor:pointer}
+.segs span{display:block;padding:4px 12px;border-radius:999px;font-size:12.5px;color:#8FA3AD}
+.segs input:checked+span{background:var(--amber);color:#15180F;font-weight:700}
+.segs input:focus-visible+span{outline:2px solid var(--amber);outline-offset:1px}
+.prev-opts{
+  display:flex;gap:14px;flex-wrap:wrap;padding:8px 14px;
+  background:#1A252B;border-top:1px solid #24343C;font-size:12.5px;color:#8FA3AD;
+}
+.prev-opts label{display:flex;align-items:center;gap:5px;cursor:pointer}
+.wq{border-inline-start:4px solid #6EA9A2;padding-inline-start:9px;margin:3px 0}
+.wl{margin:2px 0;padding-inline-start:20px;list-style:disc}
+.wl li{margin:1px 0}
+.wbr{height:11px}
+
+/* ---------- action bar ---------- */
+.bar{
+  position:fixed;inset-inline:0;bottom:0;z-index:20;
+  background:rgba(21,24,15,.94);backdrop-filter:blur(8px);
+  border-top:1px solid var(--line);padding:10px 14px calc(10px + env(safe-area-inset-bottom));
+}
+.bar-in{max-width:760px;margin:0 auto;display:flex;gap:9px}
+.btn{
+  flex:1;border-radius:10px;padding:13px 10px;font-family:'Secular One',sans-serif;
+  font-size:16px;border:1px solid transparent;cursor:pointer;
+}
+.btn-1{background:var(--amber);color:#15180F}
+.btn-2{background:transparent;border-color:var(--olive);color:var(--olive)}
+.btn:active{transform:translateY(1px)}
+
+.toast{
+  position:fixed;bottom:84px;inset-inline:0;margin:auto;width:max-content;max-width:90%;
+  background:var(--olive);color:#12150D;font-weight:700;padding:9px 18px;border-radius:999px;
+  opacity:0;transition:opacity .2s, transform .2s;transform:translateY(8px);pointer-events:none;z-index:30;
+}
+.toast.show{opacity:1;transform:translateY(0)}
+:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (max-width:420px){
+  .hdr-grid{grid-template-columns:1fr}
+  .tank-in{font-size:30px}
+}
+</style>
+</head>
+<body>
+<noscript>
+  <div style="max-width:520px;margin:60px auto;padding:22px;background:#262C1D;border:1px solid #C4553D;
+    border-radius:10px;color:#E6E9DC;font-family:Arial,sans-serif;text-align:center;direction:rtl">
+    <div style="font-size:34px;margin-bottom:8px">⚠️</div>
+    <div style="font-size:17px;font-weight:700;margin-bottom:8px">הדף לא נטען כמו שצריך</div>
+    <div style="font-size:14.5px;line-height:1.6">
+      נראה שהקובץ נפתח בתצוגה מקדימה (למשל של וואטסאפ) שלא מריצה קוד.<br><br>
+      <b>באייפון:</b> לחץ על סמל השיתוף למעלה ← <b>Open in Safari</b><br>
+      <b>באנדרואיד:</b> "פתח באמצעות" ← Chrome
+    </div>
+  </div>
+</noscript>
+<div class="wrap">
+
+  <!-- header -->
+  <div class="hdr">
+    <div class="hdr-top">
+      <span class="mark">דו״ח טל״ת</span>
+      <input id="tank" class="tank-in" placeholder="430" inputmode="numeric" aria-label="צ׳ טנק">
+      <input id="emoji" class="emoji-in" value="🌊" aria-label="סמל">
+    </div>
+    <div class="hdr-grid">
+      <div class="f"><label class="lbl" for="date">תאריך</label><input id="date" type="date"></div>
+      <div class="f"><label class="lbl" for="cmd">מפקד</label><input id="cmd" placeholder="שם המפקד"></div>
+    </div>
+    <div class="gauges">
+      <div class="gauge"><label class="lbl" for="hours">שעמ</label><input id="hours" inputmode="decimal" placeholder="0.0"></div>
+      <div class="gauge"><label class="lbl" for="km">קמ</label><input id="km" inputmode="decimal" placeholder="0.0"></div>
+      <div class="gauge"><label class="lbl" for="fuel">סולר</label><input id="fuel" inputmode="numeric" placeholder="0"></div>
+    </div>
+  </div>
+
+  <div class="strip">
+    <span class="pill">ליקויים: <b id="cnt">0</b></span>
+    <button class="btn-ghost" id="btnSave">שמור לטנק</button>
+    <select class="btn-ghost" id="loadSel" aria-label="טעינת דוח שמור"><option value="">טען דוח שמור…</option></select>
+    <button class="btn-ghost" id="btnClearFaults">נקה ליקויים</button>
+    <button class="btn-ghost" id="btnDemo">מלא דוגמה</button>
+    <button class="btn-ghost" id="btnExport">ייצא קובץ</button>
+    <button class="btn-ghost" id="btnImport">ייבא קובץ</button>
+    <input type="file" id="fileIn" accept=".json,application/json" style="display:none">
+    <span class="hint" id="storeHint"></span>
+  </div>
+
+  <div id="sections"></div>
+
+  <!-- oils -->
+  <div class="sec has" id="secOils">
+    <div class="sec-hd"><span class="sec-ttl">שמנים</span><span class="badge" id="oilBadge">0</span></div>
+    <div class="oils" id="oils"></div>
+    <div class="items" style="padding-top:0">
+      <div class="row">
+        <span class="dot">›</span>
+        <textarea id="oilNote" rows="1" placeholder="הערה (למשל: צריך ספריי שמן)"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- preview -->
+  <div class="prev">
+    <div class="prev-hd">
+      <span>כך זה ייראה בוואטסאפ</span>
+      <div class="segs" role="radiogroup" aria-label="סגנון פלט">
+        <label><input type="radio" name="fmt" value="cmd" checked><span>מפקד</span></label>
+        <label><input type="radio" name="fmt" value="clean"><span>נקי</span></label>
+        <label><input type="radio" name="fmt" value="raw"><span>מקורי</span></label>
+      </div>
+    </div>
+    <div class="prev-opts">
+      <label><input type="checkbox" id="optIcons" checked> אימוג׳ים</label>
+      <label><input type="checkbox" id="optGroup" checked> קבץ קטגוריות תקינות</label>
+      <label><input type="checkbox" id="optSum" checked> שורת סיכום</label>
+    </div>
+    <div class="prev-body">
+      <div class="bubble" id="bubble"></div>
+      <div class="tail" id="stamp"></div>
+    </div>
+  </div>
+</div>
+
+<div class="bar"><div class="bar-in">
+  <button class="btn btn-1" id="btnCopy">העתק דוח</button>
+  <button class="btn btn-2" id="btnWa">פתח בוואטסאפ</button>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const SECTIONS=[
+  {id:'weapon',t:'נשק',b:true,ic:'🔫'},
+  {id:'radio',t:'קשר',b:true,ic:'📻'},
+  {id:'bakash',t:'בק"ש',b:true,ic:'🎯'},
+  {id:'elec',t:'חשמל',b:true,ic:'⚡'},
+  {id:'turret',t:'צריח',b:true,ic:'🔄'},
+  {id:'mech',t:'מכונאות',b:true,ic:'🔧'},
+  {id:'hamtzar',t:'חמצר',b:true,ic:'🧯'},
+  {id:'tracks',t:'חוסרי ח"ח חירום',b:false,ic:'⛓️'},
+  {id:'gear',t:'זיווד',b:true,ic:'🎒'}
+];
+const OILS=[
+  {code:'2510',nm:'מנוע'},
+  {code:'9105',nm:'הידראולי'},
+  {code:'2640',nm:'ממסרה'},
+  {code:'2040',nm:'סיכה'}
+];
+
+let S={meta:{},items:{},oils:OILS.map(o=>({...o,qty:0})),oilNote:''};
+SECTIONS.forEach(s=>S.items[s.id]=[]);
+
+/* ---------- storage (optional) ---------- */
+/* ---------- storage: window.storage -> localStorage -> memory ---------- */
+const DB={
+  mode:'mem',mem:{},
+  async probe(){
+    try{
+      if(window.storage&&typeof window.storage.set==='function'){
+        await window.storage.set('talat:probe','ok');
+        const r=await window.storage.get('talat:probe');
+        if(r&&r.value){this.mode='ext';return}
+      }
+    }catch(e){}
+    try{
+      localStorage.setItem('talat:probe','ok');
+      if(localStorage.getItem('talat:probe')==='ok'){this.mode='ls';return}
+    }catch(e){}
+    this.mode='mem';
+  },
+  async set(k,v){
+    const s=JSON.stringify(v);this.mem[k]=s;
+    try{
+      if(this.mode==='ext')await window.storage.set(k,s);
+      else if(this.mode==='ls')localStorage.setItem(k,s);
+      return true;
+    }catch(e){return false}
+  },
+  async get(k){
+    let raw=null;
+    try{
+      if(this.mode==='ext'){const r=await window.storage.get(k);raw=r&&r.value}
+      else if(this.mode==='ls')raw=localStorage.getItem(k);
+    }catch(e){}
+    if(raw==null)raw=this.mem[k];
+    try{return raw?JSON.parse(raw):null}catch(e){return null}
+  },
+  async keys(p){
+    const out=[];
+    try{
+      if(this.mode==='ext'){
+        const r=await window.storage.list(p);
+        (r&&r.keys||[]).forEach(k=>out.push(typeof k==='string'?k:(k&&k.key)||''));
+      }else if(this.mode==='ls'){
+        for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.indexOf(p)===0)out.push(k)}
+      }
+    }catch(e){}
+    Object.keys(this.mem).forEach(k=>{if(k.indexOf(p)===0&&out.indexOf(k)<0)out.push(k)});
+    return out.filter(Boolean);
+  }
+};
+
+/* ---------- build DOM ---------- */
+const secWrap=document.getElementById('sections');
+SECTIONS.forEach(s=>{
+  const el=document.createElement('div');
+  el.className='sec';el.id='sec-'+s.id;
+  el.innerHTML=`
+    <div class="sec-hd">
+      <button class="add" data-add="${s.id}" aria-label="הוסף ליקוי ל${s.t}">＋</button>
+      <span class="sec-ic">${s.ic}</span>
+      <span class="sec-ttl">${s.t}</span>
+      <span class="badge" data-badge="${s.id}">תקין</span>
+    </div>
+    <div class="items" data-items="${s.id}"></div>
+    <div class="empty" data-empty="${s.id}">אין ליקויים — לחץ ＋ להוספה</div>`;
+  secWrap.appendChild(el);
+});
+secWrap.addEventListener('click',e=>{
+  const a=e.target.closest('[data-add]');if(a){addItem(a.dataset.add,'',true);return}
+  const hd=e.target.closest('.sec-hd');
+  if(hd&&!e.target.closest('.add')){const id=hd.parentElement.id.slice(4);addItem(id,'',true)}
+});
+
+const oilsWrap=document.getElementById('oils');
+S.oils.forEach((o,i)=>{
+  const el=document.createElement('div');
+  el.className='oil off';el.dataset.i=i;
+  el.innerHTML=`
+    <input class="code" value="${o.code}" aria-label="קוד שמן">
+    <span class="nm">${o.nm||''}</span>
+    <span class="stp">
+      <button data-d="-1" aria-label="הפחת">−</button>
+      <span class="q">0</span>
+      <button data-d="1" aria-label="הוסף">＋</button>
+    </span>`;
+  oilsWrap.appendChild(el);
+});
+oilsWrap.addEventListener('click',e=>{
+  const b=e.target.closest('button[data-d]');if(!b)return;
+  const row=b.closest('.oil'),i=+row.dataset.i;
+  S.oils[i].qty=Math.max(0,S.oils[i].qty+ +b.dataset.d);
+  row.querySelector('.q').textContent=S.oils[i].qty;
+  row.classList.toggle('off',S.oils[i].qty===0);
+  render();
+});
+oilsWrap.addEventListener('input',e=>{
+  if(!e.target.classList.contains('code'))return;
+  S.oils[+e.target.closest('.oil').dataset.i].code=e.target.value.trim();render();
+});
+
+/* ---------- items ---------- */
+function addItem(sec,val='',focus=false){
+  S.items[sec].push(val);
+  const idx=S.items[sec].length-1;
+  const box=document.querySelector(`[data-items="${sec}"]`);
+  const cfg=SECTIONS.find(s=>s.id===sec);
+  const row=document.createElement('div');
+  row.className='row';
+  row.innerHTML=`<span class="dot">${cfg.b?'•':'›'}</span>
+    <textarea rows="1" placeholder="תיאור הליקוי"></textarea>
+    <button class="del" aria-label="מחק">✕</button>`;
+  const ta=row.querySelector('textarea');
+  ta.value=val;
+  ta.addEventListener('input',()=>{S.items[sec][idxOf(row,box)]=ta.value;grow(ta);render()});
+  ta.addEventListener('keydown',ev=>{
+    if(ev.key==='Enter'&&!ev.shiftKey){ev.preventDefault();addItem(sec,'',true)}
+    if(ev.key==='Backspace'&&ta.value===''){
+      ev.preventDefault();const prev=row.previousElementSibling;
+      removeRow(sec,row,box);if(prev)prev.querySelector('textarea').focus();
+    }
+  });
+  row.querySelector('.del').addEventListener('click',()=>removeRow(sec,row,box));
+  box.appendChild(row);grow(ta);
+  if(focus)ta.focus();
+  render();
+}
+function idxOf(row,box){return [...box.children].indexOf(row)}
+function removeRow(sec,row,box){const i=idxOf(row,box);S.items[sec].splice(i,1);row.remove();render()}
+function grow(ta){ta.style.height='auto';ta.style.height=ta.scrollHeight+'px'}
+
+/* ---------- meta ---------- */
+const M=['tank','emoji','date','cmd','hours','km','fuel'];
+M.forEach(id=>document.getElementById(id).addEventListener('input',()=>{S.meta[id]=document.getElementById(id).value;render();autosave()}));
+document.getElementById('oilNote').addEventListener('input',e=>{S.oilNote=e.target.value;grow(e.target);render()});
+document.querySelectorAll('input[name="fmt"],.prev-opts input').forEach(el=>el.addEventListener('change',render));
+const d=new Date();
+document.getElementById('date').value=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+S.meta.date=document.getElementById('date').value;S.meta.emoji='🌊';
+
+/* ---------- build report text ---------- */
+function fmtDate(v){if(!v)return'';const[y,m,dd]=v.split('-');return `${+dd}.${+m}`}
+function mode(){const r=document.querySelector('input[name="fmt"]:checked');return r?r.value:'cmd'}
+function opt(id){const e=document.getElementById(id);return !!(e&&e.checked)}
+
+function buildText(){
+  const m=S.meta,md=mode(),raw=md==='raw';
+  const icons=!raw&&opt('optIcons'), group=!raw&&opt('optGroup'), sum=!raw&&opt('optSum');
+  const bul=raw?'• ':'- ';
+  const L=[],dash='—';
+  const v=x=>(x||'').trim()||(raw?'':dash);
+
+  // title
+  L.push(`*דו״ח טל״ת ${v(m.tank)}*${m.emoji?' '+m.emoji:''}`);
+  L.push('');
+
+  // meta block
+  const meta=[
+    `*תאריך:* ${fmtDate(m.date)}`,
+    `*צ׳ טנק:* ${v(m.tank)}`,
+    `*מפקד:* ${v(m.cmd)}`,
+    `*שעמ:* ${v(m.hours)}`,
+    `*קמ:* ${v(m.km)}`,
+    `*סולר:* ${v(m.fuel)}`
+  ];
+  if(md==='cmd'){
+    L.push(`> ${meta[0]}`);
+    L.push(`> ${meta[2]}`);
+    L.push(`> *שעמ:* ${v(m.hours)}   *קמ:* ${v(m.km)}   *סולר:* ${v(m.fuel)}`);
+  }else{
+    meta.forEach(x=>L.push(x));
+  }
+
+  // gather
+  const filled=[],clean=[];
+  SECTIONS.forEach(s=>{
+    const its=S.items[s.id].map(x=>x.trim()).filter(Boolean);
+    (its.length?filled:clean).push({s,its});
+  });
+  const oils=S.oils.filter(o=>o.qty>0);
+  const note=S.oilNote.trim();
+
+  // summary
+  if(sum){
+    const n=filled.reduce((a,x)=>a+x.its.length,0);
+    L.push('');
+    L.push(n? `*${n} ליקויים* ב-${filled.length} מערכות` : '*אין ליקויים — הטנק כשיר*');
+  }
+
+  const head=x=>`*${icons&&x.s.ic?x.s.ic+' ':''}${x.s.t}:*`;
+  const body=x=>x.its.forEach(i=>L.push(x.s.b?bul+i:i));
+
+  if(group){
+    filled.forEach(x=>{L.push('');L.push(head(x));body(x)});
+  }else{
+    SECTIONS.forEach(s=>{
+      const x=filled.find(f=>f.s.id===s.id)||{s,its:[]};
+      L.push('');L.push(head(x));body(x);
+    });
+  }
+
+  // oils
+  if(oils.length||note||!group){
+    L.push('');L.push(`*${icons?'🛢️ ':''}שמנים:*`);
+    oils.forEach(o=>L.push(raw?`${o.code}-${o.qty}`:`${bul}${o.code} × ${o.qty}`));
+    if(note)note.split('\n').filter(Boolean).forEach(n=>L.push(raw?n:bul+n));
+  }
+
+  // grouped-clean footer
+  if(group&&clean.length){
+    L.push('');
+    L.push(`*✅ תקין:* ${clean.map(x=>x.s.t).join(' · ')}`);
+  }
+  return L.join('\n');
+}
+function faultCount(){
+  return SECTIONS.reduce((a,s)=>a+S.items[s.id].filter(x=>x.trim()).length,0);
+}
+
+/* ---------- whatsapp-accurate preview ---------- */
+function renderWA(txt){
+  const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  const inl=s=>esc(s).replace(/\*(.+?)\*/g,'<strong>$1</strong>').replace(/_(.+?)_/g,'<em>$1</em>');
+  const out=[];let q=null,l=null;
+  const flushQ=()=>{if(q){out.push('<div class="wq">'+q.join('<br>')+'</div>');q=null}};
+  const flushL=()=>{if(l){out.push('<ul class="wl">'+l.join('')+'</ul>');l=null}};
+  txt.split('\n').forEach(line=>{
+    if(/^>\s?/.test(line)){flushL();(q=q||[]).push(inl(line.replace(/^>\s?/,'')));return}
+    flushQ();
+    if(/^-\s/.test(line)){(l=l||[]).push('<li>'+inl(line.slice(2))+'</li>');return}
+    flushL();
+    out.push(line.trim()===''?'<div class="wbr"></div>':'<div>'+inl(line)+'</div>');
+  });
+  flushQ();flushL();
+  return out.join('');
+}
+
+/* ---------- render ---------- */
+function render(){
+  SECTIONS.forEach(s=>{
+    const n=S.items[s.id].filter(x=>x.trim()).length;
+    const bd=document.querySelector(`[data-badge="${s.id}"]`);
+    bd.textContent=n?n:'תקין';bd.classList.toggle('on',n>0);
+    const sec=document.getElementById('sec-'+s.id);
+    const any=S.items[s.id].length>0;
+    sec.classList.toggle('has',any);
+    document.querySelector(`[data-empty="${s.id}"]`).style.display=any?'none':'block';
+  });
+  const on=S.oils.filter(o=>o.qty>0).length;
+  const ob=document.getElementById('oilBadge');
+  ob.textContent=on?on:'—';ob.classList.toggle('on',false);
+  document.getElementById('cnt').textContent=faultCount();
+  document.getElementById('bubble').innerHTML=renderWA(buildText());
+  document.getElementById('stamp').textContent=new Date().toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'});
+  autosave();
+}
+
+/* ---------- actions ---------- */
+function toast(t){const el=document.getElementById('toast');el.textContent=t;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),1800)}
+async function copyText(t){
+  try{await navigator.clipboard.writeText(t);return true}catch(e){
+    const ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;opacity:0';
+    document.body.appendChild(ta);ta.select();let ok=false;try{ok=document.execCommand('copy')}catch(_){}
+    ta.remove();return ok;
+  }
+}
+document.getElementById('btnCopy').onclick=async()=>toast(await copyText(buildText())?'הועתק — הדבק בקבוצה':'ההעתקה נכשלה, סמן ידנית');
+document.getElementById('btnWa').onclick=()=>window.open('https://wa.me/?text='+encodeURIComponent(buildText()),'_blank');
+const bcf=document.getElementById('btnClearFaults');
+let armed=false,armT;
+function disarm(){armed=false;bcf.textContent='נקה ליקויים';bcf.classList.remove('warn');clearTimeout(armT)}
+bcf.onclick=()=>{
+  if(!armed){
+    armed=true;bcf.textContent='לחץ שוב לאישור';bcf.classList.add('warn');
+    clearTimeout(armT);armT=setTimeout(disarm,3500);return;
+  }
+  disarm();
+  SECTIONS.forEach(s=>{S.items[s.id]=[];document.querySelector(`[data-items="${s.id}"]`).innerHTML=''});
+  S.oils.forEach((o,i)=>{o.qty=0;const r=oilsWrap.children[i];r.querySelector('.q').textContent='0';r.classList.add('off')});
+  S.oilNote='';const nt=document.getElementById('oilNote');nt.value='';grow(nt);
+  render();toast('הליקויים נוקו');
+};
+document.getElementById('btnDemo').onclick=()=>{
+  loadState({meta:{tank:'430',emoji:'🌊',date:S.meta.date,cmd:'אביתר שמילה',hours:'3358.5',km:'2393.4',fuel:'830'},
+   items:{weapon:[],radio:[],bakash:['בצידוד חלש יש רעידות ורעש חזק מוזר','לא עובד PTT מבקר מפקד'],
+   elec:['מאוורר תותחן לא עובד'],
+   turret:['קליפס הידוק סל צריח חסר','מושב טען — מדרגה רופפת, צריך לסדר את הקפיץ','מושב טען — ניצרות הזזה לא עובדות (תמיד נשאר פתוח)','תופסנים סל צריח לא תקינים','מתקן מאריך חשן עקום'],
+   mech:['מכסה טלפון אחורי לא נסגר כמו שצריך','סל תובה שמאל עקום'],
+   hamtzar:[],tracks:['חסר 3 חוליות וחמישה פינים'],
+   gear:['מד מומנט — בלאי הוגש','ידית 10פ חירום — נשפט, לא קיבלתי','קוני — בלאי הוגש','ערכת עזרה ראשונה','2 מטפים הוגשו בלאי']},
+   oils:[{code:'2510',nm:'מנוע',qty:1},{code:'9105',nm:'הידראולי',qty:1},{code:'2640',nm:'ממסרה',qty:1},{code:'2040',nm:'סיכה',qty:1}],
+   oilNote:'צריך ספריי שמן'});
+};
+
+/* ---------- real file backup ---------- */
+function fileName(){
+  const d=(S.meta.date||'').split('-');
+  const dt=d.length===3?`${+d[2]}-${+d[1]}`:'';
+  return `talat-${(S.meta.tank||'report').trim()}${dt?'-'+dt:''}.json`;
+}
+document.getElementById('btnExport').onclick=()=>{
+  try{
+    const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;a.download=fileName();document.body.appendChild(a);a.click();
+    setTimeout(()=>{URL.revokeObjectURL(url);a.remove()},600);
+    toast('ירד: '+fileName());
+  }catch(e){toast('ההורדה נחסמה כאן — הורד את ה-HTML ופתח בדפדפן')}
+};
+document.getElementById('btnImport').onclick=()=>document.getElementById('fileIn').click();
+document.getElementById('fileIn').onchange=e=>{
+  const f=e.target.files&&e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const st=JSON.parse(r.result);
+      if(!st||typeof st!=='object'||!st.items)throw 0;
+      loadState(st);toast('הדוח נטען מהקובץ');
+    }catch(_){toast('הקובץ לא תקין')}
+  };
+  r.onerror=()=>toast('קריאת הקובץ נכשלה');
+  r.readAsText(f);e.target.value='';
+};
+function loadState(st){
+  S.meta={...S.meta,...(st.meta||{})};
+  M.forEach(id=>{if(S.meta[id]!=null)document.getElementById(id).value=S.meta[id]});
+  SECTIONS.forEach(s=>{
+    S.items[s.id]=[];document.querySelector(`[data-items="${s.id}"]`).innerHTML='';
+    ((st.items&&st.items[s.id])||[]).forEach(v=>addItem(s.id,v,false));
+  });
+  (st.oils||[]).forEach((o,i)=>{if(!S.oils[i])return;S.oils[i].qty=o.qty||0;S.oils[i].code=o.code||S.oils[i].code;
+    const r=oilsWrap.children[i];r.querySelector('.q').textContent=S.oils[i].qty;
+    r.querySelector('.code').value=S.oils[i].code;r.classList.toggle('off',S.oils[i].qty===0)});
+  S.oilNote=st.oilNote||'';const nt=document.getElementById('oilNote');nt.value=S.oilNote;grow(nt);
+  render();
+}
+let saveT;
+function autosave(){clearTimeout(saveT);saveT=setTimeout(()=>DB.set('talat:autosave',S),700)}
+
+const bs=document.getElementById('btnSave'),sel=document.getElementById('loadSel');
+bs.onclick=async()=>{
+  const t=(S.meta.tank||'').trim();
+  if(!t){toast('קודם מלא צ׳ טנק');document.getElementById('tank').focus();return}
+  const ok=await DB.set('talat:tank:'+t,S);
+  await refreshList();
+  toast(DB.mode==='mem'?'נשמר לסשן הזה בלבד':(ok?'נשמר · טנק '+t:'השמירה נכשלה'));
+};
+sel.onchange=async()=>{
+  if(!sel.value)return;
+  const key=sel.value;sel.value='';
+  const st=await DB.get(key);
+  if(st){loadState(st);toast('נטען · טנק '+key.split(':').pop())}
+  else toast('לא נמצא דוח שמור');
+};
+async function refreshList(){
+  const keys=await DB.keys('talat:tank:');
+  sel.innerHTML='<option value="">טען דוח שמור…</option>'+
+    keys.map(k=>`<option value="${k}">טנק ${String(k).split(':').pop()}</option>`).join('');
+  sel.disabled=keys.length===0;
+}
+(async()=>{
+  await DB.probe();
+  await refreshList();
+  const a=await DB.get('talat:autosave');
+  if(a)loadState(a);
+  render();
+  if(DB.mode==='mem')document.getElementById('storeHint').textContent='(שמירה לסשן הנוכחי)';
+})();
+</script>
+</body>
+</html>
