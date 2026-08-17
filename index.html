@@ -9,26 +9,32 @@
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&family=Secular+One&family=Roboto+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --plate:#15180F;
-  --panel:#1E2317;
-  --panel-2:#262C1D;
-  --line:#3A422C;
-  --olive:#7E9150;
+  --plate:#14170F;
+  --panel:#1D2216;
+  --panel-2:#252B1C;
+  --panel-3:#2C331F;
+  --line:#3C4530;
+  --olive:#84985A;
   --amber:#E8A33D;
   --signal:#C4553D;
-  --txt:#E6E9DC;
-  --muted:#8F9880;
+  --txt:#EAEDDF;
+  --muted:#93A182;
+  --faint:#5E6A4C;
   --wa:#1F2C34;
   --wa-bubble:#0B4C39;
-  --r:10px;
+  --r:12px;
+  --glow:0 0 0 3px rgba(232,163,61,.16);
+  --shadow:0 3px 10px rgba(0,0,0,.32);
   color-scheme:dark;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0}
 body{
   background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E") repeat,
     radial-gradient(120% 60% at 50% 0%, #1D2216 0%, var(--plate) 60%),
     var(--plate);
+  background-blend-mode:overlay,normal,normal;
   color:var(--txt);
   font-family:'Heebo',-apple-system,'Segoe UI',Arial,sans-serif;
   font-size:16px;line-height:1.45;
@@ -42,7 +48,8 @@ body{
   position:relative;margin-top:14px;
   border:1px solid var(--line);border-radius:var(--r);
   background:linear-gradient(180deg,var(--panel-2),var(--panel));
-  overflow:hidden;
+  overflow:hidden;box-shadow:var(--shadow);
+  animation:riseIn .5s ease both;animation-delay:.02s;
 }
 .hdr::before{
   content:"";position:absolute;inset-inline-start:0;top:0;bottom:0;width:6px;
@@ -59,8 +66,9 @@ body{
   background:rgba(232,163,61,.1);border:1px solid rgba(232,163,61,.35);border-radius:8px;
   color:var(--amber);width:5.6ch;text-align:center;
   padding:2px 4px;letter-spacing:.04em;
+  box-shadow:inset 0 1px 4px rgba(0,0,0,.35);
 }
-.tank-in:focus{outline:none;border-color:var(--amber);background:rgba(232,163,61,.18)}
+.tank-in:focus{outline:none;border-color:var(--amber);background:rgba(232,163,61,.18);box-shadow:inset 0 1px 4px rgba(0,0,0,.35),var(--glow)}
 .emoji-in{
   width:2.6ch;font-size:26px;background:transparent;border:none;text-align:center;
   margin-inline-start:auto;padding:0;
@@ -83,20 +91,30 @@ label.lbl{
   font-family:'Roboto Mono',monospace;font-weight:700;font-size:20px;text-align:center;
   color:var(--amber);direction:ltr;padding:8px 4px;
 }
-.f input:focus,.gauge input:focus{outline:none;border-color:var(--amber);background:#353E27}
+.f input:focus,.gauge input:focus{outline:none;border-color:var(--amber);background:#353E27;box-shadow:var(--glow)}
 .f input::placeholder,.gauge input::placeholder{color:#7E8A69}
-#date{color-scheme:dark;-webkit-text-fill-color:var(--txt)}
-#date::-webkit-date-and-time-value{text-align:start;color:var(--txt)}
-#date::-webkit-calendar-picker-indicator{
-  filter:invert(69%) sepia(78%) saturate(452%) hue-rotate(358deg) brightness(101%) contrast(96%);
-  opacity:.9;cursor:pointer;
+
+.date-box{
+  position:relative;display:flex;align-items:center;gap:8px;
+  width:100%;background:#2E3622;border:1px solid #465235;border-radius:8px;
+  padding:8px 10px;cursor:pointer;
 }
-#date::-webkit-calendar-picker-indicator:hover{opacity:1}
+.date-box:focus-within{border-color:var(--amber);background:#353E27;box-shadow:var(--glow)}
+.date-ic{font-size:14px;opacity:.75;flex:0 0 auto}
+.date-display{
+  flex:1;font-family:'Roboto Mono',monospace;font-weight:700;font-size:16.5px;
+  color:#F4F6EC;letter-spacing:.03em;direction:ltr;text-align:end;
+}
+#date{
+  position:absolute;inset:0;width:100%;height:100%;opacity:0;
+  border:0;padding:0;margin:0;background:transparent;cursor:pointer;color-scheme:dark;
+}
 
 /* ---------- status strip ---------- */
 .strip{
   display:flex;align-items:center;gap:10px;flex-wrap:wrap;
-  margin:12px 0 4px;font-size:13px;color:var(--muted)
+  margin:12px 0 4px;font-size:13px;color:var(--muted);
+  animation:riseIn .5s ease both;animation-delay:.08s;
 }
 .pill{
   border:1px solid var(--line);border-radius:999px;padding:3px 11px;
@@ -106,6 +124,7 @@ label.lbl{
 .btn-ghost{
   background:var(--panel);border:1px solid var(--line);color:var(--muted);
   border-radius:999px;padding:5px 12px;font-family:inherit;font-size:12.5px;cursor:pointer;
+  transition:color .15s,border-color .15s;
 }
 .btn-ghost:hover{color:var(--txt);border-color:var(--olive)}
 .btn-ghost.warn{background:var(--signal);border-color:var(--signal);color:#15180F;font-weight:700}
@@ -113,25 +132,41 @@ label.lbl{
 
 /* ---------- sections ---------- */
 .sec{
-  margin-top:10px;border:1px solid var(--line);border-radius:var(--r);
-  background:var(--panel);overflow:hidden;
+  position:relative;margin-top:10px;border:1px solid var(--line);border-radius:var(--r);
+  background:var(--panel);overflow:hidden;box-shadow:var(--shadow);
 }
+.sec::before{
+  content:"";position:absolute;inset-inline-start:0;top:0;bottom:0;width:4px;
+  background:var(--line);transition:background .15s;
+}
+.sec.has:not(#secOils)::before{background:var(--signal)}
+#sections .sec:nth-child(1){animation:riseIn .5s ease both;animation-delay:.11s}
+#sections .sec:nth-child(2){animation:riseIn .5s ease both;animation-delay:.14s}
+#sections .sec:nth-child(3){animation:riseIn .5s ease both;animation-delay:.17s}
+#sections .sec:nth-child(4){animation:riseIn .5s ease both;animation-delay:.20s}
+#sections .sec:nth-child(5){animation:riseIn .5s ease both;animation-delay:.23s}
+#sections .sec:nth-child(6){animation:riseIn .5s ease both;animation-delay:.26s}
+#sections .sec:nth-child(7){animation:riseIn .5s ease both;animation-delay:.29s}
+#sections .sec:nth-child(8){animation:riseIn .5s ease both;animation-delay:.32s}
+#sections .sec:nth-child(9){animation:riseIn .5s ease both;animation-delay:.35s}
 .sec-hd{
   display:flex;align-items:center;gap:10px;padding:10px 14px;
   background:var(--panel-2);border-bottom:1px solid transparent;cursor:pointer;
+  transition:background .15s;
 }
+.sec-hd:hover{background:var(--panel-3)}
 .sec.has .sec-hd{border-bottom-color:var(--line)}
+.sec-ic{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:28px;height:28px;border-radius:7px;font-size:14.5px;flex:0 0 auto;
+  background:var(--panel-3);border:1px solid var(--line);
+}
 .sec-ttl{font-family:'Secular One',sans-serif;font-size:17px;letter-spacing:.02em}
 .badge{
   margin-inline-start:auto;font-family:'Roboto Mono',monospace;font-size:12px;
   padding:2px 9px;border-radius:999px;border:1px solid var(--line);color:var(--muted);
 }
 .badge.on{color:#15180F;background:var(--signal);border-color:var(--signal);font-weight:700}
-.add{
-  border:none;background:transparent;color:var(--olive);font-family:inherit;
-  font-size:22px;line-height:1;padding:0 4px;cursor:pointer;
-}
-.add:hover{color:var(--amber)}
 .items{padding:6px 10px 10px}
 .row{display:flex;align-items:flex-start;gap:8px;padding:3px 0}
 .dot{color:var(--olive);font-size:18px;line-height:1.6;flex:0 0 auto;width:12px;text-align:center}
@@ -140,16 +175,21 @@ label.lbl{
   color:var(--txt);font-family:inherit;font-size:15.5px;line-height:1.4;
   padding:7px 10px;resize:none;overflow:hidden;min-height:36px;
 }
-.row textarea:focus{outline:none;border-color:var(--olive);background:#2B321F}
+.row textarea:focus{outline:none;border-color:var(--olive);background:#2B321F;box-shadow:var(--glow)}
 .del{
   flex:0 0 auto;background:transparent;border:none;color:#5D6650;cursor:pointer;
   font-size:18px;padding:6px 4px;line-height:1;
 }
 .del:hover{color:var(--signal)}
-.empty{padding:2px 12px 12px;color:#5D6650;font-size:13.5px;cursor:pointer}
-.empty:hover{color:var(--olive)}
+.empty{
+  margin:0 10px 10px;padding:11px 12px;border:1px dashed var(--line);border-radius:8px;
+  color:var(--faint);font-size:13.5px;cursor:pointer;text-align:center;
+  transition:border-color .15s,color .15s,background .15s;
+}
+.empty:hover{border-color:var(--olive);color:var(--olive);background:rgba(126,145,80,.06)}
 
 /* ---------- oils ---------- */
+#secOils{animation:riseIn .5s ease both;animation-delay:.38s}
 .oils{padding:10px 12px 12px;display:grid;gap:7px}
 .oil{
   display:flex;align-items:center;gap:10px;background:var(--panel-2);
@@ -165,6 +205,7 @@ label.lbl{
 .stp button{
   width:30px;height:30px;border-radius:7px;border:1px solid var(--line);
   background:var(--panel);color:var(--txt);font-size:17px;cursor:pointer;line-height:1;
+  transition:border-color .15s;
 }
 .stp button:hover{border-color:var(--olive)}
 .stp .q{
@@ -177,7 +218,8 @@ label.lbl{
 /* ---------- preview ---------- */
 .prev{
   margin-top:16px;border:1px solid var(--line);border-radius:var(--r);
-  background:var(--wa);overflow:hidden;
+  background:var(--wa);overflow:hidden;box-shadow:var(--shadow);
+  animation:riseIn .5s ease both;animation-delay:.42s;
 }
 .prev-hd{
   display:flex;align-items:center;gap:8px;padding:9px 14px;
@@ -191,7 +233,6 @@ label.lbl{
 }
 .bubble strong{font-weight:700}
 .tail{text-align:end;font-size:11px;color:#8FA3AD;margin-top:4px}
-.sec-ic{font-size:15px;opacity:.85;line-height:1}
 .segs{margin-inline-start:auto;display:flex;background:#0F191E;border-radius:999px;padding:2px}
 .segs label{position:relative;cursor:pointer}
 .segs input{position:absolute;opacity:0;inset:0;cursor:pointer}
@@ -218,7 +259,7 @@ label.lbl{
   flex:1;border-radius:10px;padding:13px 10px;font-family:'Secular One',sans-serif;
   font-size:16px;border:1px solid transparent;cursor:pointer;
 }
-.btn-1{background:var(--amber);color:#15180F}
+.btn-1{background:var(--amber);color:#15180F;box-shadow:0 2px 8px rgba(232,163,61,.25)}
 .btn-2{background:transparent;border-color:var(--olive);color:var(--olive)}
 .btn:active{transform:translateY(1px)}
 
@@ -238,6 +279,7 @@ label.lbl{
 .modal{
   background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
   max-width:520px;width:100%;max-height:86vh;display:flex;flex-direction:column;overflow:hidden;
+  box-shadow:0 12px 32px rgba(0,0,0,.5);
 }
 .modal-hd{
   padding:12px 16px;font-family:'Secular One',sans-serif;font-size:16px;
@@ -249,21 +291,22 @@ label.lbl{
   width:100%;min-height:220px;background:var(--panel-2);border:1px solid var(--line);
   border-radius:8px;color:var(--txt);font-family:inherit;font-size:14px;padding:9px 10px;resize:vertical;
 }
-#waPasteArea:focus{outline:none;border-color:var(--olive)}
+#waPasteArea:focus{outline:none;border-color:var(--olive);box-shadow:var(--glow)}
 .modal-ft{display:flex;gap:9px;padding:12px 16px;border-top:1px solid var(--line);background:var(--panel-2)}
 .modal-ft .btn-ghost,.modal-ft .btn{flex:1;border-radius:10px}
 
 .imp-opt{
   display:block;width:100%;text-align:start;padding:12px 14px;border-radius:8px;
   background:var(--panel-2);border:1px solid var(--line);color:var(--txt);
-  font-family:inherit;cursor:pointer;
+  font-family:inherit;cursor:pointer;transition:border-color .15s;
 }
 .imp-opt+.imp-opt{margin-top:9px}
 .imp-opt:hover{border-color:var(--olive)}
 .imp-opt b{display:block;font-size:14.5px;margin-bottom:2px}
 .imp-opt span{font-size:12px;color:var(--muted)}
 :focus-visible{outline:2px solid var(--amber);outline-offset:2px}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@keyframes riseIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 @media (max-width:420px){
   .hdr-grid{grid-template-columns:1fr}
   .tank-in{font-size:30px}
@@ -293,7 +336,14 @@ label.lbl{
       <input id="emoji" class="emoji-in" value="🌊" aria-label="סמל">
     </div>
     <div class="hdr-grid">
-      <div class="f"><label class="lbl" for="date">תאריך</label><input id="date" type="date"></div>
+      <div class="f">
+        <label class="lbl" for="date">תאריך</label>
+        <div class="date-box">
+          <span class="date-ic">📅</span>
+          <span id="dateDisplay" class="date-display">--.--.----</span>
+          <input id="date" type="date" aria-label="תאריך">
+        </div>
+      </div>
       <div class="f"><label class="lbl" for="cmd">מפקד</label><input id="cmd" placeholder="שם המפקד"></div>
     </div>
     <div class="gauges">
@@ -304,10 +354,10 @@ label.lbl{
   </div>
 
   <div class="strip">
-    <span class="pill">ליקויים: <b id="cnt">0</b></span>
+    <span class="pill">⚠ ליקויים: <b id="cnt">0</b></span>
     <button class="btn-ghost" id="btnClearFaults">נקה ליקויים</button>
-    <button class="btn-ghost" id="btnExport">ייצא קובץ</button>
-    <button class="btn-ghost" id="btnImport">ייבא</button>
+    <button class="btn-ghost" id="btnExport">⬇ ייצא קובץ</button>
+    <button class="btn-ghost" id="btnImport">⬆ ייבא</button>
     <input type="file" id="fileIn" accept=".json,application/json" style="display:none">
     <span class="hint" id="storeHint"></span>
   </div>
@@ -349,8 +399,8 @@ label.lbl{
 </div>
 
 <div class="bar"><div class="bar-in">
-  <button class="btn btn-1" id="btnCopy">העתק דוח</button>
-  <button class="btn btn-2" id="btnWa">פתח בוואטסאפ</button>
+  <button class="btn btn-1" id="btnCopy">📋 העתק דוח</button>
+  <button class="btn btn-2" id="btnWa">💬 פתח בוואטסאפ</button>
 </div></div>
 <div class="toast" id="toast"></div>
 
@@ -463,21 +513,28 @@ SECTIONS.forEach(s=>{
   const el=document.createElement('div');
   el.className='sec';el.id='sec-'+s.id;
   el.innerHTML=`
-    <div class="sec-hd">
-      <button class="add" data-add="${s.id}" aria-label="הוסף ליקוי ל${s.t}">＋</button>
+    <div class="sec-hd" role="button" tabindex="0" aria-label="הוסף ליקוי ל${s.t}">
       <span class="sec-ic">${s.ic}</span>
       <span class="sec-ttl">${s.t}</span>
       <span class="badge" data-badge="${s.id}">תקין</span>
     </div>
     <div class="items" data-items="${s.id}"></div>
-    <div class="empty" data-empty="${s.id}">אין ליקויים — לחץ ＋ להוספה</div>`;
+    <div class="empty" data-empty="${s.id}" role="button" tabindex="0">אין ליקויים — הקישו כדי להוסיף</div>`;
   secWrap.appendChild(el);
 });
 secWrap.addEventListener('click',e=>{
-  const a=e.target.closest('[data-add]');if(a){addItem(a.dataset.add,'',true);return}
   const em=e.target.closest('.empty');if(em){addItem(em.dataset.empty,'',true);return}
   const hd=e.target.closest('.sec-hd');
-  if(hd&&!e.target.closest('.add')){const id=hd.parentElement.id.slice(4);addItem(id,'',true)}
+  if(hd){const id=hd.parentElement.id.slice(4);addItem(id,'',true)}
+});
+secWrap.addEventListener('keydown',e=>{
+  if(e.key!=='Enter'&&e.key!==' ')return;
+  const em=e.target.closest('.empty');
+  const hd=e.target.closest('.sec-hd');
+  if(!em&&!hd)return;
+  e.preventDefault();
+  if(em)addItem(em.dataset.empty,'',true);
+  else addItem(hd.parentElement.id.slice(4),'',true);
 });
 
 const oilsWrap=document.getElementById('oils');
@@ -548,6 +605,12 @@ S.meta.date=document.getElementById('date').value;S.meta.emoji='🌊';
 
 /* ---------- build report text ---------- */
 function fmtDate(v){if(!v)return'';const[y,m,dd]=v.split('-');return `${+dd}.${+m}`}
+function fmtDateFull(v){
+  if(!v)return'--.--.----';
+  const[y,m,dd]=v.split('-');
+  if(!y||!m||!dd)return'--.--.----';
+  return `${dd}.${m}.${y}`;
+}
 function mode(){const r=document.querySelector('input[name="fmt"]:checked');return r?r.value:'cmd'}
 function opt(id){const e=document.getElementById(id);return !!(e&&e.checked)}
 
@@ -665,6 +728,7 @@ function render(){
   const ob=document.getElementById('oilBadge');
   ob.textContent=on?on:'—';ob.classList.toggle('on',false);
   document.getElementById('cnt').textContent=faultCount();
+  document.getElementById('dateDisplay').textContent=fmtDateFull(S.meta.date);
   document.getElementById('bubble').innerHTML=renderWA(buildText());
   document.getElementById('stamp').textContent=new Date().toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'});
   autosave();
