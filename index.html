@@ -220,6 +220,30 @@ label.lbl{
   opacity:0;transition:opacity .2s, transform .2s;transform:translateY(8px);pointer-events:none;z-index:30;
 }
 .toast.show{opacity:1;transform:translateY(0)}
+
+/* ---------- whatsapp-text import modal ---------- */
+.modal-bg{
+  position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;
+  align-items:center;justify-content:center;z-index:40;padding:16px;
+}
+.modal-bg.show{display:flex}
+.modal{
+  background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
+  max-width:520px;width:100%;max-height:86vh;display:flex;flex-direction:column;overflow:hidden;
+}
+.modal-hd{
+  padding:12px 16px;font-family:'Secular One',sans-serif;font-size:16px;
+  border-bottom:1px solid var(--line);background:var(--panel-2);
+}
+.modal-body{padding:12px 16px;overflow:auto}
+.modal-hint{font-size:12.5px;color:var(--muted);margin:0 0 10px;line-height:1.5}
+#waPasteArea{
+  width:100%;min-height:220px;background:var(--panel-2);border:1px solid var(--line);
+  border-radius:8px;color:var(--txt);font-family:inherit;font-size:14px;padding:9px 10px;resize:vertical;
+}
+#waPasteArea:focus{outline:none;border-color:var(--olive)}
+.modal-ft{display:flex;gap:9px;padding:12px 16px;border-top:1px solid var(--line);background:var(--panel-2)}
+.modal-ft .btn-ghost,.modal-ft .btn{flex:1;border-radius:10px}
 :focus-visible{outline:2px solid var(--amber);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 @media (max-width:420px){
@@ -270,6 +294,7 @@ label.lbl{
     <button class="btn-ghost" id="btnExport">ייצא קובץ</button>
     <button class="btn-ghost" id="btnImport">ייבא קובץ</button>
     <input type="file" id="fileIn" accept=".json,application/json" style="display:none">
+    <button class="btn-ghost" id="btnPasteWa">ייבוא מטקסט</button>
     <span class="hint" id="storeHint"></span>
   </div>
 
@@ -314,6 +339,24 @@ label.lbl{
   <button class="btn btn-2" id="btnWa">פתח בוואטסאפ</button>
 </div></div>
 <div class="toast" id="toast"></div>
+
+<div class="modal-bg" id="waModalBg">
+  <div class="modal">
+    <div class="modal-hd">ייבוא דוח מטקסט וואטסאפ</div>
+    <div class="modal-body">
+      <p class="modal-hint">
+        הדביקו כאן את <b>תוכן ההודעה</b> של דוח טל״ת ישן (לא ייצוא צ׳אט מלא).
+        הפענוח הוא best-effort: שדות, מדורים, ליקויים ושמנים ינסו להיטען אוטומטית —
+        בדקו את התוצאה לפני שליחה. שימו לב: בפורמט אין שנה בתאריך, אז השנה תנוחש.
+      </p>
+      <textarea id="waPasteArea" placeholder="הדביקו כאן את טקסט הדוח…"></textarea>
+    </div>
+    <div class="modal-ft">
+      <button class="btn-ghost" id="waCancel">ביטול</button>
+      <button class="btn btn-1" id="waLoad">פענח וטען</button>
+    </div>
+  </div>
+</div>
 
 <script>
 const SECTIONS=[
@@ -674,6 +717,97 @@ function loadState(st){
 }
 let saveT;
 function autosave(){clearTimeout(saveT);saveT=setTimeout(()=>DB.set('talat:autosave',S),700)}
+
+/* ---------- import from pasted WhatsApp text (best-effort reverse of buildText) ---------- */
+function parseDdMm(v){
+  if(!v||v==='—')return '';
+  const m=v.trim().match(/^(\d{1,2})\.(\d{1,2})$/);
+  if(!m)return '';
+  const dd=+m[1],mo=+m[2];
+  const now=new Date();
+  let yyyy=now.getFullYear();
+  if(new Date(yyyy,mo-1,dd)>now)yyyy-=1;
+  return `${yyyy}-${String(mo).padStart(2,'0')}-${String(dd).padStart(2,'0')}`;
+}
+function parseWhatsApp(text){
+  const st={meta:{},items:{},oils:OILS.map(o=>({...o,qty:0})),oilNote:''};
+  SECTIONS.forEach(s=>st.items[s.id]=[]);
+  const labelMap={'תאריך':'date','צ׳ טנק':'tank','מפקד':'cmd','שעמ':'hours','קמ':'km','סולר':'fuel'};
+  const noteLines=[];
+  let cur=null;
+  text.split(/\r?\n/).forEach(rawLine=>{
+    let line=rawLine.trim();
+    if(!line)return;
+
+    const noStar=line.replace(/\*/g,'');
+    if(noStar.includes('דו״ח טל״ת')){
+      const rest=noStar.replace('דו״ח טל״ת','').trim();
+      const parts=rest.split(/\s+/).filter(Boolean);
+      const tankVal=parts.shift()||'';
+      if(tankVal&&tankVal!=='—')st.meta.tank=tankVal;
+      const emojiVal=parts.join(' ').trim();
+      if(emojiVal)st.meta.emoji=emojiVal;
+      cur=null;return;
+    }
+
+    if(line.startsWith('>'))line=line.replace(/^>\s?/,'');
+
+    const metaRe=/\*([^*]+?):\*\s*([^*]*)/g;
+    let foundMeta=false,mm;
+    while((mm=metaRe.exec(line))){
+      const label=mm[1].trim(),val=mm[2].trim();
+      const key=labelMap[label];
+      if(!key)continue;
+      foundMeta=true;
+      if(key==='date')st.meta.date=parseDdMm(val);
+      else st.meta[key]=val==='—'?'':val;
+    }
+    if(foundMeta){cur=null;return}
+
+    if(/ליקויים/.test(line)||/^\*?✅/.test(line)){cur=null;return}
+
+    const hMatch=line.match(/^\*(.+):\*$/);
+    if(hMatch){
+      const inner=hMatch[1].trim();
+      if(inner.endsWith('שמנים')){cur='oils';return}
+      const sec=SECTIONS.find(s=>inner.endsWith(s.t));
+      cur=sec?sec.id:null;
+      return;
+    }
+
+    if(!cur)return;
+
+    if(cur==='oils'){
+      const om=line.match(/^(?:[-•]\s*)?(\d{2,5})\s*[×x-]\s*(\d+)$/);
+      if(om){
+        const code=om[1],qty=+om[2];
+        const idx=st.oils.findIndex(o=>o.code===code);
+        if(idx>=0)st.oils[idx].qty=qty;
+        else noteLines.push(`קוד ${code} × ${qty} (לא זוהה אוטומטית — בדקו ידנית)`);
+        return;
+      }
+      const txt=line.replace(/^[-•]\s*/,'').trim();
+      if(txt)noteLines.push(txt);
+      return;
+    }
+
+    const txt=line.replace(/^[-•]\s*/,'').trim();
+    if(txt)st.items[cur].push(txt);
+  });
+  st.oilNote=noteLines.join('\n');
+  return st;
+}
+const waBg=document.getElementById('waModalBg'),waArea=document.getElementById('waPasteArea');
+document.getElementById('btnPasteWa').onclick=()=>{waArea.value='';waBg.classList.add('show');waArea.focus()};
+document.getElementById('waCancel').onclick=()=>waBg.classList.remove('show');
+waBg.addEventListener('click',e=>{if(e.target===waBg)waBg.classList.remove('show')});
+document.getElementById('waLoad').onclick=()=>{
+  const txt=waArea.value;
+  if(!txt.trim()){toast('הדביקו טקסט קודם');return}
+  loadState(parseWhatsApp(txt));
+  waBg.classList.remove('show');
+  toast('נטען מטקסט — בדקו תאריך ושדות לפני שליחה');
+};
 
 const bs=document.getElementById('btnSave'),sel=document.getElementById('loadSel');
 bs.onclick=async()=>{
