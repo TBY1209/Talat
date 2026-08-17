@@ -21,6 +21,7 @@
   --wa:#1F2C34;
   --wa-bubble:#0B4C39;
   --r:10px;
+  color-scheme:dark;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0}
@@ -84,6 +85,13 @@ label.lbl{
 }
 .f input:focus,.gauge input:focus{outline:none;border-color:var(--amber);background:#353E27}
 .f input::placeholder,.gauge input::placeholder{color:#7E8A69}
+#date{color-scheme:dark;-webkit-text-fill-color:var(--txt)}
+#date::-webkit-date-and-time-value{text-align:start;color:var(--txt)}
+#date::-webkit-calendar-picker-indicator{
+  filter:invert(69%) sepia(78%) saturate(452%) hue-rotate(358deg) brightness(101%) contrast(96%);
+  opacity:.9;cursor:pointer;
+}
+#date::-webkit-calendar-picker-indicator:hover{opacity:1}
 
 /* ---------- status strip ---------- */
 .strip{
@@ -138,7 +146,8 @@ label.lbl{
   font-size:18px;padding:6px 4px;line-height:1;
 }
 .del:hover{color:var(--signal)}
-.empty{padding:2px 12px 12px;color:#5D6650;font-size:13.5px}
+.empty{padding:2px 12px 12px;color:#5D6650;font-size:13.5px;cursor:pointer}
+.empty:hover{color:var(--olive)}
 
 /* ---------- oils ---------- */
 .oils{padding:10px 12px 12px;display:grid;gap:7px}
@@ -194,7 +203,6 @@ label.lbl{
   background:#1A252B;border-top:1px solid #24343C;font-size:12.5px;color:#8FA3AD;
 }
 .prev-opts label{display:flex;align-items:center;gap:5px;cursor:pointer}
-.wq{border-inline-start:4px solid #6EA9A2;padding-inline-start:9px;margin:3px 0}
 .wl{margin:2px 0;padding-inline-start:20px;list-style:disc}
 .wl li{margin:1px 0}
 .wbr{height:11px}
@@ -244,6 +252,16 @@ label.lbl{
 #waPasteArea:focus{outline:none;border-color:var(--olive)}
 .modal-ft{display:flex;gap:9px;padding:12px 16px;border-top:1px solid var(--line);background:var(--panel-2)}
 .modal-ft .btn-ghost,.modal-ft .btn{flex:1;border-radius:10px}
+
+.imp-opt{
+  display:block;width:100%;text-align:start;padding:12px 14px;border-radius:8px;
+  background:var(--panel-2);border:1px solid var(--line);color:var(--txt);
+  font-family:inherit;cursor:pointer;
+}
+.imp-opt+.imp-opt{margin-top:9px}
+.imp-opt:hover{border-color:var(--olive)}
+.imp-opt b{display:block;font-size:14.5px;margin-bottom:2px}
+.imp-opt span{font-size:12px;color:var(--muted)}
 :focus-visible{outline:2px solid var(--amber);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 @media (max-width:420px){
@@ -287,14 +305,10 @@ label.lbl{
 
   <div class="strip">
     <span class="pill">ליקויים: <b id="cnt">0</b></span>
-    <button class="btn-ghost" id="btnSave">שמור לטנק</button>
-    <select class="btn-ghost" id="loadSel" aria-label="טעינת דוח שמור"><option value="">טען דוח שמור…</option></select>
     <button class="btn-ghost" id="btnClearFaults">נקה ליקויים</button>
-    <button class="btn-ghost" id="btnDemo">מלא דוגמה</button>
     <button class="btn-ghost" id="btnExport">ייצא קובץ</button>
-    <button class="btn-ghost" id="btnImport">ייבא קובץ</button>
+    <button class="btn-ghost" id="btnImport">ייבא</button>
     <input type="file" id="fileIn" accept=".json,application/json" style="display:none">
-    <button class="btn-ghost" id="btnPasteWa">ייבוא מטקסט</button>
     <span class="hint" id="storeHint"></span>
   </div>
 
@@ -339,6 +353,19 @@ label.lbl{
   <button class="btn btn-2" id="btnWa">פתח בוואטסאפ</button>
 </div></div>
 <div class="toast" id="toast"></div>
+
+<div class="modal-bg" id="impModalBg">
+  <div class="modal">
+    <div class="modal-hd">ייבוא דוח</div>
+    <div class="modal-body">
+      <button class="imp-opt" id="impJson"><b>קובץ JSON</b><span>קובץ שיוצא מהאפליקציה הזו בעבר</span></button>
+      <button class="imp-opt" id="impText"><b>הדבקת טקסט</b><span>העתק-הדבק של דוח ישן מוואטסאפ</span></button>
+    </div>
+    <div class="modal-ft">
+      <button class="btn-ghost" id="impCancel">ביטול</button>
+    </div>
+  </div>
+</div>
 
 <div class="modal-bg" id="waModalBg">
   <div class="modal">
@@ -448,6 +475,7 @@ SECTIONS.forEach(s=>{
 });
 secWrap.addEventListener('click',e=>{
   const a=e.target.closest('[data-add]');if(a){addItem(a.dataset.add,'',true);return}
+  const em=e.target.closest('.empty');if(em){addItem(em.dataset.empty,'',true);return}
   const hd=e.target.closest('.sec-hd');
   if(hd&&!e.target.closest('.add')){const id=hd.parentElement.id.slice(4);addItem(id,'',true)}
 });
@@ -544,27 +572,31 @@ function buildText(){
     `*סולר:* ${v(m.fuel)}`
   ];
   if(md==='cmd'){
-    L.push(`> ${meta[0]}`);
-    L.push(`> ${meta[2]}`);
-    L.push(`> *שעמ:* ${v(m.hours)}   *קמ:* ${v(m.km)}   *סולר:* ${v(m.fuel)}`);
+    L.push(meta[0]);
+    L.push(meta[2]);
+    L.push(`*שעמ:* ${v(m.hours)}   *קמ:* ${v(m.km)}   *סולר:* ${v(m.fuel)}`);
   }else{
     meta.forEach(x=>L.push(x));
   }
 
-  // gather
+  // gather (tracks/missing-parts is its own category, never "compliant")
   const filled=[],clean=[];
   SECTIONS.forEach(s=>{
+    if(s.id==='tracks')return;
     const its=S.items[s.id].map(x=>x.trim()).filter(Boolean);
     (its.length?filled:clean).push({s,its});
   });
+  const trackSec=SECTIONS.find(s=>s.id==='tracks');
+  const trackIts=S.items.tracks.map(x=>x.trim()).filter(Boolean);
   const oils=S.oils.filter(o=>o.qty>0);
   const note=S.oilNote.trim();
 
   // summary
   if(sum){
-    const n=filled.reduce((a,x)=>a+x.its.length,0);
+    const n=filled.reduce((a,x)=>a+x.its.length,0)+trackIts.length;
+    const sysCount=filled.length+(trackIts.length?1:0);
     L.push('');
-    L.push(n? `*${n} ליקויים* ב-${filled.length} מערכות` : '*אין ליקויים — הטנק כשיר*');
+    L.push(n? `*${n} ליקויים* ב-${sysCount} מערכות` : '*אין ליקויים — הטנק כשיר*');
   }
 
   const head=x=>`*${icons&&x.s.ic?x.s.ic+' ':''}${x.s.t}:*`;
@@ -574,10 +606,16 @@ function buildText(){
     filled.forEach(x=>{L.push('');L.push(head(x));body(x)});
   }else{
     SECTIONS.forEach(s=>{
+      if(s.id==='tracks')return;
       const x=filled.find(f=>f.s.id===s.id)||{s,its:[]};
       L.push('');L.push(head(x));body(x);
     });
   }
+
+  // tracks/missing-parts — always its own separate block, never in "compliant"
+  L.push('');L.push(head({s:trackSec}));
+  if(trackIts.length)trackIts.forEach(i=>L.push(i));
+  else L.push('אין');
 
   // oils
   if(oils.length||note||!group){
@@ -601,17 +639,14 @@ function faultCount(){
 function renderWA(txt){
   const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
   const inl=s=>esc(s).replace(/\*(.+?)\*/g,'<strong>$1</strong>').replace(/_(.+?)_/g,'<em>$1</em>');
-  const out=[];let q=null,l=null;
-  const flushQ=()=>{if(q){out.push('<div class="wq">'+q.join('<br>')+'</div>');q=null}};
+  const out=[];let l=null;
   const flushL=()=>{if(l){out.push('<ul class="wl">'+l.join('')+'</ul>');l=null}};
   txt.split('\n').forEach(line=>{
-    if(/^>\s?/.test(line)){flushL();(q=q||[]).push(inl(line.replace(/^>\s?/,'')));return}
-    flushQ();
     if(/^-\s/.test(line)){(l=l||[]).push('<li>'+inl(line.slice(2))+'</li>');return}
     flushL();
     out.push(line.trim()===''?'<div class="wbr"></div>':'<div>'+inl(line)+'</div>');
   });
-  flushQ();flushL();
+  flushL();
   return out.join('');
 }
 
@@ -620,7 +655,7 @@ function render(){
   SECTIONS.forEach(s=>{
     const n=S.items[s.id].filter(x=>x.trim()).length;
     const bd=document.querySelector(`[data-badge="${s.id}"]`);
-    bd.textContent=n?n:'תקין';bd.classList.toggle('on',n>0);
+    bd.textContent=n?n:(s.id==='tracks'?'אין':'תקין');bd.classList.toggle('on',n>0);
     const sec=document.getElementById('sec-'+s.id);
     const any=S.items[s.id].length>0;
     sec.classList.toggle('has',any);
@@ -660,18 +695,6 @@ bcf.onclick=()=>{
   S.oilNote='';const nt=document.getElementById('oilNote');nt.value='';grow(nt);
   render();toast('הליקויים נוקו');
 };
-document.getElementById('btnDemo').onclick=()=>{
-  loadState({meta:{tank:'430',emoji:'🌊',date:S.meta.date,cmd:'אביתר שמילה',hours:'3358.5',km:'2393.4',fuel:'830'},
-   items:{weapon:[],radio:[],bakash:['בצידוד חלש יש רעידות ורעש חזק מוזר','לא עובד PTT מבקר מפקד'],
-   elec:['מאוורר תותחן לא עובד'],
-   turret:['קליפס הידוק סל צריח חסר','מושב טען — מדרגה רופפת, צריך לסדר את הקפיץ','מושב טען — ניצרות הזזה לא עובדות (תמיד נשאר פתוח)','תופסנים סל צריח לא תקינים','מתקן מאריך חשן עקום'],
-   mech:['מכסה טלפון אחורי לא נסגר כמו שצריך','סל תובה שמאל עקום'],
-   hamtzar:[],tracks:['חסר 3 חוליות וחמישה פינים'],
-   gear:['מד מומנט — בלאי הוגש','ידית 10פ חירום — נשפט, לא קיבלתי','קוני — בלאי הוגש','ערכת עזרה ראשונה','2 מטפים הוגשו בלאי']},
-   oils:[{code:'2510',nm:'מנוע',qty:1},{code:'9105',nm:'הידראולי',qty:1},{code:'2640',nm:'ממסרה',qty:1},{code:'2040',nm:'סיכה',qty:1}],
-   oilNote:'צריך ספריי שמן'});
-};
-
 /* ---------- real file backup ---------- */
 function fileName(){
   const d=(S.meta.date||'').split('-');
@@ -688,7 +711,12 @@ document.getElementById('btnExport').onclick=()=>{
     toast('ירד: '+fileName());
   }catch(e){toast('ההורדה נחסמה כאן — הורד את ה-HTML ופתח בדפדפן')}
 };
-document.getElementById('btnImport').onclick=()=>document.getElementById('fileIn').click();
+const impBg=document.getElementById('impModalBg');
+document.getElementById('btnImport').onclick=()=>impBg.classList.add('show');
+document.getElementById('impCancel').onclick=()=>impBg.classList.remove('show');
+impBg.addEventListener('click',e=>{if(e.target===impBg)impBg.classList.remove('show')});
+document.getElementById('impJson').onclick=()=>{impBg.classList.remove('show');document.getElementById('fileIn').click()};
+document.getElementById('impText').onclick=()=>{impBg.classList.remove('show');waArea.value='';waBg.classList.add('show');waArea.focus()};
 document.getElementById('fileIn').onchange=e=>{
   const f=e.target.files&&e.target.files[0];if(!f)return;
   const r=new FileReader();
@@ -792,13 +820,13 @@ function parseWhatsApp(text){
     }
 
     const txt=line.replace(/^[-•]\s*/,'').trim();
+    if(cur==='tracks'&&txt==='אין')return;
     if(txt)st.items[cur].push(txt);
   });
   st.oilNote=noteLines.join('\n');
   return st;
 }
 const waBg=document.getElementById('waModalBg'),waArea=document.getElementById('waPasteArea');
-document.getElementById('btnPasteWa').onclick=()=>{waArea.value='';waBg.classList.add('show');waArea.focus()};
 document.getElementById('waCancel').onclick=()=>waBg.classList.remove('show');
 waBg.addEventListener('click',e=>{if(e.target===waBg)waBg.classList.remove('show')});
 document.getElementById('waLoad').onclick=()=>{
@@ -809,30 +837,8 @@ document.getElementById('waLoad').onclick=()=>{
   toast('נטען מטקסט — בדקו תאריך ושדות לפני שליחה');
 };
 
-const bs=document.getElementById('btnSave'),sel=document.getElementById('loadSel');
-bs.onclick=async()=>{
-  const t=(S.meta.tank||'').trim();
-  if(!t){toast('קודם מלא צ׳ טנק');document.getElementById('tank').focus();return}
-  const ok=await DB.set('talat:tank:'+t,S);
-  await refreshList();
-  toast(DB.mode==='mem'?'נשמר לסשן הזה בלבד':(ok?'נשמר · טנק '+t:'השמירה נכשלה'));
-};
-sel.onchange=async()=>{
-  if(!sel.value)return;
-  const key=sel.value;sel.value='';
-  const st=await DB.get(key);
-  if(st){loadState(st);toast('נטען · טנק '+key.split(':').pop())}
-  else toast('לא נמצא דוח שמור');
-};
-async function refreshList(){
-  const keys=await DB.keys('talat:tank:');
-  sel.innerHTML='<option value="">טען דוח שמור…</option>'+
-    keys.map(k=>`<option value="${k}">טנק ${String(k).split(':').pop()}</option>`).join('');
-  sel.disabled=keys.length===0;
-}
 (async()=>{
   await DB.probe();
-  await refreshList();
   const a=await DB.get('talat:autosave');
   if(a)loadState(a);
   render();
