@@ -196,11 +196,10 @@ label.lbl{
   border-radius:8px;padding:6px 10px;
 }
 .oil .code{
-  font-family:'Roboto Mono',monospace;font-size:16px;font-weight:700;
-  color:var(--txt);direction:ltr;background:transparent;border:none;width:7ch;
+  flex:1;font-family:'Roboto Mono',monospace;font-size:16px;font-weight:700;
+  color:var(--txt);direction:ltr;text-align:center;background:transparent;border:none;
 }
 .oil .code:focus{outline:none;color:var(--amber)}
-.oil .nm{font-size:13px;color:var(--muted);flex:1}
 .stp{display:flex;align-items:center;gap:2px}
 .stp button{
   width:30px;height:30px;border-radius:7px;border:1px solid var(--line);
@@ -212,7 +211,7 @@ label.lbl{
   width:34px;text-align:center;font-family:'Roboto Mono',monospace;font-weight:700;
   color:var(--amber);font-size:16px;
 }
-.oil.off .code,.oil.off .nm{opacity:.4}
+.oil.off .code{opacity:.4}
 .oil.off .q{color:#5D6650}
 
 /* ---------- preview ---------- */
@@ -448,10 +447,10 @@ const SECTIONS=[
   {id:'gear',t:'זיווד',b:true,ic:'🎒'}
 ];
 const OILS=[
-  {code:'2510',nm:'מנוע'},
-  {code:'9105',nm:'הידראולי'},
-  {code:'2640',nm:'ממסרה'},
-  {code:'2040',nm:'סיכה'}
+  {code:'2510'},
+  {code:'9105'},
+  {code:'2640'},
+  {code:'2040'}
 ];
 
 let S={meta:{},items:{},oils:OILS.map(o=>({...o,qty:0})),oilNote:''};
@@ -543,7 +542,6 @@ S.oils.forEach((o,i)=>{
   el.className='oil off';el.dataset.i=i;
   el.innerHTML=`
     <input class="code" value="${o.code}" aria-label="קוד שמן">
-    <span class="nm">${o.nm||''}</span>
     <span class="stp">
       <button data-d="-1" aria-label="הפחת">−</button>
       <span class="q">0</span>
